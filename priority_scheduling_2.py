@@ -16,15 +16,15 @@ class LTE_Scheduler:
     def __init__(self, total_resources, users):
         self.total_resources = total_resources
         self.users = users
-        self.resources_allocated = {user.id: 0 for user in users}
+        self.resources_allocated = {user.id: user for user in users}
 
     def preempt_if_needed(self, user, demand):
-        if self.resources_allocated[user.id] + demand > self.total_resources:
+        if sum(u.demand for u in self.resources_allocated.values()) + demand > self.total_resources:
             preemption_candidates = [
                 u for u in self.users if u.priority == user.priority and u.id != user.id]
             if preemption_candidates:
                 preempted_user = random.choice(preemption_candidates)
-                self.resources_allocated[preempted_user.id] = 0
+                self.resources_allocated.pop(preempted_user.id)
                 preempted_user.preempted = True
 
     def allocate_resources(self):
@@ -34,17 +34,20 @@ class LTE_Scheduler:
                 user.preempted = False
             demand = user.demand
             self.preempt_if_needed(user, demand)
-            if self.resources_allocated[user.id] + demand <= self.total_resources:
-                self.resources_allocated[user.id] += demand
+            if user.id not in self.resources_allocated:
+                self.resources_allocated[user.id] = user
                 user.time_on_network += 1
 
     def calculate_throughput(self):
-        total_throughput = sum(self.resources_allocated.values())
+        total_throughput = sum(
+            u.demand for u in self.resources_allocated.values())
         return total_throughput
 
     def calculate_fairness(self):
-        calculate_fairness_values = [allocated / user.demand for (user, allocated) in self.resources_allocated.items()]
-        fairness = sum(calculate_fairness_values) / len(calculate_fairness_values)
+        calculate_fairness_values = [
+            allocated.demand for allocated in self.resources_allocated.values()]
+        fairness = sum(calculate_fairness_values) / \
+            len(calculate_fairness_values)
         return fairness
 
 
