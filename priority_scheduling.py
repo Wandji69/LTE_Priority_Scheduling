@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 
 class User:
-    def _init_(self, id, priority, demand, max_time):
+    def __init__(self, id, priority, demand, max_time):
         self.id = id
         self.priority = priority
         self.demand = demand
@@ -11,7 +11,7 @@ class User:
         self.preempted = False
 
 class LTE_Scheduler:
-    def _init_(self, total_resources, users):
+    def __init__(self, total_resources, users):
         self.total_resources = total_resources
         self.users = users
         self.resources_allocated = {user.id: 0 for user in users}
@@ -40,8 +40,8 @@ class LTE_Scheduler:
         return total_throughput
 
     def calculate_fairness(self):
-        fairness_values = [allocated / user.demand for user, allocated in self.resources_allocated.items()]
-        fairness = sum(fairness_values) / len(fairness_values)
+        calculate_fairness_values = [allocated / user.demand for user, allocated in self.resources_allocated.items()]
+        fairness = sum(calculate_fairness_values) / len(calculate_fairness_values)
         return fairness
 
 def simulate():
@@ -55,7 +55,7 @@ def simulate():
     fairness_values = []
     
     for _ in range(num_iterations):
-        scheduler.allocate_resources()
+        scheduler.allocate_resources(users)
         system_throughput = scheduler.calculate_throughput()
         fairness = scheduler.calculate_fairness()
         throughput_values.append(system_throughput)
@@ -75,5 +75,5 @@ def simulate():
     plt.ylabel("Fairness")
     plt.show()
 
-if __name__== "_main_":
+if __name__== "__main__":
   simulate()
